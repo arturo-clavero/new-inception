@@ -7,29 +7,28 @@ services:
     nginx:
         container_name: nginx
         build:
-            context: ./nginx
+            context: ./requirements/nginx
             dockerfile: Dockerfile
+        image: nginx:fromScratch
         networks:
             - inception
         ports:
-            - "80:80"
             - "443:443"
         depends_on:
             - wordpress
         volumes:
-            - ./app:/var/www/artclave.42.fr
+            - /home/artclave/data:/var/www/artclave.42.fr
         # restart: always
     wordpress:
         container_name: wordpress
         build:
-            context: ./wordpress
+            context: ./requirements/wordpress
             dockerfile: Dockerfile
+        image: wordpress:fromScratch
         networks: 
             - inception
-        expose:
-            - "9000"
         volumes:
-            - ./app:/var/www/artclave.42.fr
+            - /home/artclave/data:/var/www/artclave.42.fr
         environment:
             DB_NAME: ${DB_NAME}
             DB_ADMIN: ${DB_ADMIN}
@@ -37,13 +36,13 @@ services:
             DB_ROOT_PW: ${DB_ROOT_PW}
         depends_on:
             - mariadb
-            # - nginx
         # restart: always
     mariadb:
         container_name: mariadb
         build:
-            context: ./mariadb
+            context: ./requirements/mariadb
             dockerfile: Dockerfile
+        image: mariadb:fromScratch
         networks:
             - inception
         environment:
@@ -51,4 +50,5 @@ services:
             DB_ADMIN: ${DB_ADMIN}
             DB_ADMIN_PW: ${DB_ADMIN_PW}
             DB_ROOT_PW: ${DB_ROOT_PW}
+        #ADD VOLUME!
         # restart: always
