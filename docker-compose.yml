@@ -17,8 +17,8 @@ services:
         depends_on:
             - wordpress
         volumes:
-            - ./nginx/index:/var/www/artclave.42.fr
-        restart: always
+            - ./app:/var/www/artclave.42.fr
+        # restart: always
     wordpress:
         container_name: wordpress
         build:
@@ -29,7 +29,7 @@ services:
         expose:
             - "9000"
         volumes:
-            - ./nginx/index:/var/www/artclave.42.fr
+            - ./app:/var/www/artclave.42.fr
         environment:
             DB_NAME: ${DB_NAME}
             DB_ADMIN: ${DB_ADMIN}
@@ -37,7 +37,8 @@ services:
             DB_ROOT_PW: ${DB_ROOT_PW}
         depends_on:
             - mariadb
-        restart: always
+            # - nginx
+        # restart: always
     mariadb:
         container_name: mariadb
         build:
@@ -50,4 +51,4 @@ services:
             DB_ADMIN: ${DB_ADMIN}
             DB_ADMIN_PW: ${DB_ADMIN_PW}
             DB_ROOT_PW: ${DB_ROOT_PW}
-        restart: always
+        # restart: always
