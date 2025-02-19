@@ -1,0 +1,53 @@
+networks:
+    inception:
+        name: "inception"
+        driver: "bridge"
+
+services:
+    nginx:
+        container_name: nginx
+        build:
+            context: ./nginx
+            dockerfile: Dockerfile
+        networks:
+            - inception
+        ports:
+            - "80:80"
+            - "443:443"
+        depends_on:
+            - wordpress
+        volumes:
+            - ./nginx/index:/var/www/artclave.42.fr
+        restart: always
+    wordpress:
+        container_name: wordpress
+        build:
+            context: ./wordpress
+            dockerfile: Dockerfile
+        networks: 
+            - inception
+        expose:
+            - "9000"
+        volumes:
+            - ./nginx/index:/var/www/artclave.42.fr
+        environment:
+            DB_NAME: ${DB_NAME}
+            DB_ADMIN: ${DB_ADMIN}
+            DB_ADMIN_PW: ${DB_ADMIN_PW}
+            DB_ROOT_PW: ${DB_ROOT_PW}
+        depends_on:
+            - mariadb
+        restart: always
+    mariadb:
+        container_name: mariadb
+        build:
+            context: ./mariadb
+            dockerfile: Dockerfile
+        networks:
+            - inception
+        environment:
+            DB_NAME: ${DB_NAME}
+            DB_ADMIN: ${DB_ADMIN}
+            DB_ADMIN_PW: ${DB_ADMIN_PW}
+            DB_ROOT_PW: ${DB_ROOT_PW}
+        restart: always
