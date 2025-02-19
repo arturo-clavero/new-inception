@@ -13,6 +13,7 @@ COPY www.conf /etc/php/8.2/fpm/pool.d/www.conf
 RUN touch testfile
 COPY set.sh /var/www/artclave.42.fr/
 COPY set.sh .
+RUN chmod +x ./set.sh
 WORKDIR /var/www/artclave.42.fr
 RUN chmod +x ./set.sh
 RUN wget https://wordpress.org/latest.tar.gz
@@ -38,6 +39,6 @@ RUN mkdir -p /var/www/.wp-cli/cache/ && chown -R www-data:www-data /var/www/.wp-
 
 # EXPOSE 9000
 WORKDIR /
-CMD [ "sh", "-c", "envsubst < ./set.sh > ./set-envs.sh && ./set-envs.sh && php-fpm8.2 -F"]
+CMD [ "sh", "-c", "envsubst < ./set.sh > ./set-envs.sh && chmod +x ./set-envs.sh && php-fpm8.2 -F"]
 
 # CMD ["php-fpm8.2",  "-F"]
