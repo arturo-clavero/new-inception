@@ -29,16 +29,17 @@ services:
             - inception
         volumes:
             - page:/var/www/artclave.42.fr
-        environment:
-            DB_NAME: ${DB_NAME}
-            DB_ADMIN: ${DB_ADMIN}
-            DB_ADMIN_PW: ${DB_ADMIN_PW}
-            WP_ADMIN: ${WP_ADMIN}
-            WP_ADMIN_PW: ${WP_ADMIN_PW}
-            WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
-            WP_USER2: ${WP_USER2}
-            WP_USER2_EMAIL: ${WP_USER2_EMAIL}
-            WP_USER2_PW: ${WP_USER2_PW}
+        secrets:
+            - db_name
+            - db_admin
+            - db_admin_pw 
+            - wp_admin
+            - wp_admin_email 
+            - wp_admin_pw
+            - wp_user
+            - wp_user_email 
+            - wp_user_pw
+
         depends_on:
             - mariadb
         # restart: always
@@ -50,14 +51,39 @@ services:
         image: mariadb:fromScratch
         networks:
             - inception
-        environment:
-            DB_NAME: ${DB_NAME}
-            DB_ADMIN: ${DB_ADMIN}
-            DB_ADMIN_PW: ${DB_ADMIN_PW}
-            DB_ROOT_PW: ${DB_ROOT_PW}
+        secrets:
+            - db_name
+            - db_admin
+            - db_admin_pw 
+            - db_root_pw
         volumes:
             - database:/var/lib/mysql
         # restart: always
+secrets:
+    db_root_pw:
+        environment: DB_ROOT_PW
+    db_name:
+        environment: DB_NAME
+    db_admin:
+        environment: DB_ADMIN
+    db_admin_pw:
+        environment: DB_ADMIN_PW
+    wp_admin:
+        environment: WP_ADMIN
+    wp_admin_pw:
+        environment: WP_ADMIN_PW
+    wp_admin_email:
+        environment: WP_ADMIN_EMAIL
+    wp_user:
+        environment: WP_USER2
+    wp_user_email:
+        environment: WP_USER2_EMAIL
+    wp_user_pw:
+        environment: WP_USER2_PW
+    server_key:
+        external: true
+    server_crt:
+        external: true
 
 volumes:
     page:

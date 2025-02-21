@@ -29,3 +29,6 @@ re: down
 	docker system prune -f
 	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) up -d
 
+reset: clean
+	sudo rm -rf /home/artclave/data/*
+	sudo rm -rf /home/artclave/db/*

@@ -3,7 +3,6 @@ FROM debian:12.9
 RUN apt-get update && apt-get install -y \
 php8.2-fpm \
 wget \
-gettext \
 php-mysqli \
 curl \
 gosu
@@ -15,6 +14,4 @@ RUN chmod +x script.sh
 
 EXPOSE 9000
 
-# CMD ["./script.sh"]
-
-CMD [ "sh", "-c", "envsubst < script.sh > script_env.sh && chmod +x script_env.sh && ./script_env.sh" ]
+CMD [ "./script.sh" ]
