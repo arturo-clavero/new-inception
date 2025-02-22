@@ -5,7 +5,8 @@ php8.2-fpm \
 wget \
 php-mysqli \
 curl \
-gosu
+gosu \
+sendmail
 
 COPY www.conf /etc/php/8.2/fpm/pool.d/www.conf
 
