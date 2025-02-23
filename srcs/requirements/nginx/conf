@@ -1,13 +1,13 @@
 server {
 	listen 443 ssl;
 	listen [::]:443 ssl;
-	server_name artclave.42.fr;
+	server_name $DOMAIN_NAME;
 	ssl_certificate     /etc/nginx/ssl/cert/server.crt;
     ssl_certificate_key /etc/nginx/ssl/private/server.key;
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_ciphers         HIGH:!aNULL:!MD5;
 
-	root /var/www/artclave.42.fr;
+	root /var/www/$DOMAIN_NAME;
 	index index.php index.html;
 	
 	  location / {

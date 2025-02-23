@@ -4,6 +4,12 @@ DOCKER_COMPOSE_FILE = srcs/docker-compose.yml
 all: build up
 
 build:
+	if [ ! -d /home/artclave/data/website ]; then
+		mkdir -p /home/artclave/data/website
+	fi
+	if [ ! -d /home/artclave/data/database ]; then
+		mkdir -p /home/artclave/data/website
+	fi
 	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) build
 
 up:
@@ -29,18 +35,6 @@ re: down
 	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) up -d
 
 reset: clean
-	sudo rm -rf /home/artclave/data/*
-	sudo rm -rf /home/artclave/db/*
+	sudo rm -rf /home/artclave/data/website
+	sudo rm -rf /home/artclave/data/database
 
-# env:
-# DB_ROOT_PW=hello
-# DB_NAME=wordpress
-# DB_ADMIN=artclave #CAN NOT BE ADMIN!
-# DB_ADMIN_PW="123"
-# WP_ADMIN=MrCat
-# WP_ADMIN_PW=tuna
-# WP_ADMIN_EMAIL=bob@gmail.com
-# WP_USER2=JustAPeasant
-# WP_USER2_EMAIL=nameless@gmail.com
-# WP_USER2_PW=trucks
-# DOCKER_BUILDKIT=1

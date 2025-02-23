@@ -13,12 +13,14 @@ services:
         networks:
             - inception
         ports:
-            - "443:443"
+            - "8443:443"
         depends_on:
             - wordpress
         volumes:
-            - page:/var/www/artclave.42.fr
-        # restart: always
+            - page:/var/www/$DOMAIN_NAME
+        environment:
+            - DOMAIN_NAME=$DOMAIN_NAME
+        restart: on-failure
     wordpress:
         container_name: wordpress
         build:
@@ -28,7 +30,9 @@ services:
         networks: 
             - inception
         volumes:
-            - page:/var/www/artclave.42.fr
+            - page:/var/www/$DOMAIN_NAME
+        environment:
+            - DOMAIN_NAME=$DOMAIN_NAME
         secrets:
             - db_name
             - db_admin
@@ -42,7 +46,7 @@ services:
 
         depends_on:
             - mariadb
-        # restart: always
+        restart: on-failure
     mariadb:
         container_name: mariadb
         build:
@@ -58,7 +62,7 @@ services:
             - db_root_pw
         volumes:
             - database:/var/lib/mysql
-        # restart: always
+        restart: on-failure
 secrets:
     db_root_pw:
         environment: DB_ROOT_PW
@@ -80,21 +84,17 @@ secrets:
         environment: WP_USER2_EMAIL
     wp_user_pw:
         environment: WP_USER2_PW
-    server_key:
-        external: true
-    server_crt:
-        external: true
 
 volumes:
     page:
         driver: local
         driver_opts:
             type: none
-            device: /home/artclave/data
+            device: /home/artclave/data/website
             o: bind
     database:
         driver: local
         driver_opts:
             type: none
-            device: /home/artclave/db
+            device: /home/artclave/data/database
             o: bind

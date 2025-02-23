@@ -8,9 +8,9 @@ curl \
 gosu \
 sendmail
 
-COPY www.conf /etc/php/8.2/fpm/pool.d/www.conf
+COPY conf /etc/php/8.2/fpm/pool.d/www.conf
 
-COPY script.sh .
+COPY tools/script.sh .
 RUN chmod +x script.sh
 
 EXPOSE 9000
