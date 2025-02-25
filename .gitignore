@@ -1,3 +1,4 @@
 .env
 **/rebuild.sh
 **/restart.sh
+./secrets/*

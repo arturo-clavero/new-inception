@@ -20,7 +20,7 @@ services:
             - page:/var/www/$DOMAIN_NAME
         environment:
             - DOMAIN_NAME=$DOMAIN_NAME
-        restart: on-failure
+        restart: unless-stopped
     wordpress:
         container_name: wordpress
         build:
@@ -36,17 +36,18 @@ services:
         secrets:
             - db_name
             - db_admin
-            - db_admin_pw 
+            - db_admin_pw
             - wp_admin
             - wp_admin_email 
             - wp_admin_pw
             - wp_user
-            - wp_user_email 
+            - wp_user_role
+            - wp_user_email
             - wp_user_pw
 
         depends_on:
             - mariadb
-        restart: on-failure
+        restart: unless-stopped
     mariadb:
         container_name: mariadb
         build:
@@ -80,6 +81,8 @@ secrets:
         environment: WP_ADMIN_EMAIL
     wp_user:
         environment: WP_USER2
+    wp_user_role:
+        environment: WP_USER2_ROLE
     wp_user_email:
         environment: WP_USER2_EMAIL
     wp_user_pw:
