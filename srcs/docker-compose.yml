@@ -13,7 +13,7 @@ services:
         networks:
             - inception
         ports:
-            - "8443:443"
+            - "443:443"
         depends_on:
             - wordpress
         volumes:
@@ -62,7 +62,7 @@ services:
             - db_root_pw
         volumes:
             - database:/var/lib/mysql
-        restart: on-failure
+        restart: unless-stopped
 secrets:
     db_root_pw:
         file: ../secrets/db_root_password.txt
