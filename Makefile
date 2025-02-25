@@ -32,12 +32,9 @@ define set_missing_value
 			echo "Missing file - created $(1)"; \
 	fi; \
 	sudo chmod 777 $(1); \
-	echo "test 1"; \
-	if ! grep -Pq "^$(2).+$$" $(1) || ([ -z "$2"] && [ ! -s $(1)]); then \
-		echo "test 2"; \
+	if ! grep -Pq "^$(2).+$$" $(1) || ([ -z "$2" ] && [ ! -s $(1) ]); then \
 		grep -iq "^$(2)$$" $(1) && sed -i '/^$(2)$$/d' $(1) && echo "Exists and deleted 1"; \
 		grep -iq "^$(shell echo $(2) | sed 's/.$$//')$$" $(1) && sed -i "/^$(shell echo $(2) | sed 's/.$$//')$$/d" $(1) && echo "2 Exists and deleted"; \
-		echo "test 3"; \
 		while ! grep -Pq "^$(2).+$$" $(1); do \
 			if echo $(1) | grep -q ".txt" && [ -z "$(strip $(2))" ]; then \
 				echo "Please enter a value for missing $(basename $(1) .txt)"; \
