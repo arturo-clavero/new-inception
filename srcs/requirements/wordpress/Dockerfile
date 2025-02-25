@@ -6,13 +6,13 @@ wget \
 php-mysqli \
 curl \
 gosu \
-sendmail
+sendmail \
+&& rm -rf /var/lib/apt/lists/*
 
-COPY conf /etc/php/8.2/fpm/pool.d/www.conf
-
-COPY tools/script.sh .
-RUN chmod +x script.sh
+COPY ./conf /etc/php/8.2/fpm/pool.d/www.conf
+COPY ./tools/script.sh ./tools/get_credentials.sh ./
+RUN chmod +x script.sh get_credentials.sh
 
 EXPOSE 9000
 
-CMD [ "./script.sh" ]
+ENTRYPOINT [ "./script.sh" ]

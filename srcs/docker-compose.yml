@@ -16,10 +16,12 @@ services:
             - "443:443"
         depends_on:
             - wordpress
-        volumes:
-            - page:/var/www/$DOMAIN_NAME
         environment:
             - DOMAIN_NAME=$DOMAIN_NAME
+        volumes:
+            - website:/var/www/$DOMAIN_NAME
+        secrets:
+            - domain
         restart: unless-stopped
     wordpress:
         container_name: wordpress
@@ -30,20 +32,14 @@ services:
         networks: 
             - inception
         volumes:
-            - page:/var/www/$DOMAIN_NAME
+            - website:/var/www/$DOMAIN_NAME
         environment:
             - DOMAIN_NAME=$DOMAIN_NAME
             - WP_USER_ROLE=$WORDPRESS_USER2_ROLE
         secrets:
-            - db_name
-            - db_admin
+            - domain
             - db_admin_pw
-            - wp_admin
-            - wp_admin_email 
-            - wp_pws
-            - wp_user
-            - wp_user_email
-
+            - credentials
         depends_on:
             - mariadb
         restart: unless-stopped
@@ -56,35 +52,23 @@ services:
         networks:
             - inception
         secrets:
-            - db_name
-            - db_admin
             - db_admin_pw 
             - db_root_pw
+            - credentials
         volumes:
             - database:/var/lib/mysql
         restart: unless-stopped
 secrets:
+    domain:
+        environment: DOMAIN_NAME
     db_root_pw:
         file: ../secrets/db_root_password.txt
-    db_name:
-        environment: DATABASE_NAME
-    db_admin:
-        environment: DATABASE_ADMIN
     db_admin_pw:
         file: ../secrets/db_password.txt
-    wp_admin:
-        environment: WORDPRESS_ADMIN_USERNAME
-    wp_admin_email:
-        environment: WORDPRESS_ADMIN_EMAIL
-    wp_user:
-        environment: WORDPRESS_USER2_USERNAME
-    wp_user_email:
-        environment: WORDPRESS_USER2_EMAIL
-    wp_pws:
+    credentials:
         file: ../secrets/credentials.txt
-
 volumes:
-    page:
+    website:
         driver: local
         driver_opts:
             type: none

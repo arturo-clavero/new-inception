@@ -3,28 +3,41 @@
 if ! id "newuser" &>/dev/null; then
 	useradd -m newuser
 fi
-chown -R newuser:newuser /var/www/$DOMAIN_NAME
 
-db_name=$(cat /run/secrets/db_name)
-db_admin=$(cat /run/secrets/db_admin)
+chown -R newuser:newuser /var/www/${DOMAIN_NAME}
+
+touch mylogs.txt
+chmod +x mylogs.txt
+
 db_admin_pw=$(cat /run/secrets/db_admin_pw)
-wp_admin=$(cat /run/secrets/wp_admin)
-wp_admin_email=$(cat /run/secrets/wp_admin_email)
-wp_user=$(cat /run/secrets/wp_user)
-wp_user_email=$(cat /run/secrets/wp_user_email)
+echo "received $db_admin_pw" >> mylogs.txt
 
-while IFS='=' read -r key value; do
-  if [ -n "$key" ] && [ -n "$value" ]; then
-    if [ "$key" = "WORDPRESS_ADMIN_PASSWORD" ]; then
-		wp_admin_pw=$value
-    elif [ "$key" = "WORDPRESS_USER2_PASSWORD" ]; then
-      	wp_user_pw=$value
-    fi
-  fi
-done < /run/secrets/wp_pws
+echo "sent DATABASE_NAME" >> mylogs.txt
+db_name=$(./get_credentials.sh "DATABASE_NAME")
+echo "received $db_name" >> mylogs.txt
 
-if [ ! -f /var/www/$DOMAIN_NAME/wp-config.php ]; then
-	gosu newuser sh -c "cd /var/www/$DOMAIN_NAME && \
+echo "sent DATABASE_ADMIN" >> mylogs.txt
+db_admin=$(./get_credentials.sh "DATABASE_ADMIN")
+echo "received $db_admin" >> mylogs.txt
+
+echo "sent WORDPRESS_ADMIN_USERNAME" >> mylogs.txt
+wp_admin=$(./get_credentials.sh "WORDPRESS_ADMIN_USERNAME")
+echo "received $wp_admin" >> mylogs.txt
+
+echo "sent DATABASE_NAME" >> mylogs.txt
+wp_admin_email=$(./get_credentials.sh "WORDPRESS_ADMIN_EMAIL")
+echo "received $wp_admin_email" >> mylogs.txt
+
+echo "sent WORDPRESS_USER2_USERNAME" >> mylogs.txt
+wp_user=$(./get_credentials.sh "WORDPRESS_USER2_USERNAME")
+echo "received $wp_user" >> mylogs.txt
+
+echo "sent WORDPRESS_USER2_EMAIL" >> mylogs.txt
+wp_user_email=$(./get_credentials.sh "WORDPRESS_USER2_EMAIL")
+echo "received $wp_user_email" >> mylogs.txt
+
+if [ ! -f /var/www/${DOMAIN_NAME}/wp-config.php ]; then
+	gosu newuser sh -c "cd /var/www/${DOMAIN_NAME} && \
 						curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 						chmod +x wp-cli.phar && \
 						./wp-cli.phar core download && \
@@ -33,6 +46,6 @@ if [ ! -f /var/www/$DOMAIN_NAME/wp-config.php ]; then
 						./wp-cli.phar core install --url="https://artclave." --title=inception --admin_user=$wp_admin --admin_password=$wp_admin_pw --admin_email=$wp_admin_email && \
 						./wp-cli.phar user create $wp_user $wp_user_email --role=$WORDPRESS_USER2_ROLE --user_pass=$wp_user_pw"
 fi
-chown -R www-data:www-data /var/www/$DOMAIN_NAME
+chown -R www-data:www-data /var/www/${DOMAIN_NAME}
 
-php-fpm8.2 -F
+exec php-fpm8.2 -F
