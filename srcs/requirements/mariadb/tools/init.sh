@@ -1,18 +1,9 @@
 #!/bin/bash
-touch mylogs.txt
-chmod +x mylogs.txt
 
 db_admin_pw=$(cat /run/secrets/db_admin_pw)
 db_root_pw=$(cat /run/secrets/db_root_pw)
-
-echo "sent DATABASE_NAME" >> mylogs.txt
 db_name=$(./get_credentials.sh "DATABASE_NAME")
-echo "received $db_name" >> mylogs.txt
-
-echo "sent DATABASE_ADMIN" >> mylogs.txt
 db_admin=$(./get_credentials.sh "DATABASE_ADMIN")
-echo "received $db_admin" >> mylogs.txt
-
 
 touch /docker-entrypoint-initdb.d/init.sql
 
