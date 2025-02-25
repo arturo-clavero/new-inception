@@ -69,9 +69,9 @@ secrets:
     db_name:
         environment: DATABASE_NAME
     db_admin:
-        file: ../secrets/db_password.txt
+        environment: DATABASE_ADMIN
     db_admin_pw:
-        environment: DB_ADMIN_PW
+        file: ../secrets/db_password.txt
     wp_admin:
         environment: WORDPRESS_ADMIN_USERNAME
     wp_admin_email:

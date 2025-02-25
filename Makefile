@@ -54,7 +54,7 @@ define set_missing_value
 	fi; \
 	sudo chmod 777 $(1); \
 
-	
+
 	if ! grep -Pq "^$(2)=.+$$" $(1) || ([ -z "$2"] && [ ! -s $(1)]); then \
 		grep -iq "^$(2)$$" $(1) && sed -i '/^$(2)$$/d' $(1) && echo "Exists and deleted 1"; \
 		grep -iq "^$(shell echo $(2) | sed 's/.$$//')$$" $(1) && sed -i "/^$(shell echo $(2) | sed 's/.$$//')$$/d" $(1) && echo "2 Exists and deleted"; \
@@ -76,11 +76,14 @@ test:
 
 build:
 #docker swarm init ?
+	echo "-$(docker info | grep Swarm | grep -q 'inactive')-"
+	docker info | grep Swarm | grep -q 'inactive' && docker swarm init || echo "no sw"
+	@[ "$(docker info | grep Swarm | sed 's/Swarm: //')" = "inactive" ] && docker swarm init || echo "Docker Swarm already initialized"
 	@$(call make_missing_dir,$(VOLUME_DATABASE))
 	@$(call make_missing_dir,$(VOLUME_WEBSITE))
 	@$(call make_missing_dir,./secrets)
 	@$(call set_missing_value,./srcs/.env,DOMAIN_NAME=)
-	@$(call set_missing_value,./secrets/db_root_pasword.txt)
+	@$(call set_missing_value,./secrets/db_root_password.txt)
 	@$(call set_missing_value,./srcs/.env,DATABASE_NAME=)
 	@$(call set_missing_value,./srcs/.env,DATABASE_ADMIN=,,admin)
 	@$(call set_missing_value,./secrets/db_password.txt,DATABASE_ADMIN_PASSWORD=)

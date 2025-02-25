@@ -15,7 +15,6 @@ wp_user_email=$(cat /run/secrets/wp_user_email)
 
 while IFS='=' read -r key value; do
   if [ -n "$key" ] && [ -n "$value" ]; then
-    echo "Processing secret: $key=$value"
     if [ "$key" = "WORDPRESS_ADMIN_PASSWORD" ]; then
 		wp_admin_pw=$value
     elif [ "$key" = "WORDPRESS_USER2_PASSWORD" ]; then
