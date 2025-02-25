@@ -1,8 +1,7 @@
 DOCKER_COMPOSE = docker compose
 DOCKER_COMPOSE_FILE = srcs/docker-compose.yml
-VOLUME_WEBSITE = /home/artclave/data/website
 VOLUME_DATABASE = /home/artclave/data/database
-
+VOLUME_WEBSITE = /home/artclave/data/website
 define make_missing_dir
 	if [ ! -d "$(1)" ]; then \
 		sudo mkdir -p "$(1)"; \
@@ -48,22 +47,50 @@ endef
 
 all: build up
 
+define set_missing_value
+	if [ ! -f "$(1)" ]; then \
+			sudo touch "$(1)"; \
+			echo "Missing file - created $(1)"; \
+	fi; \
+	sudo chmod 777 $(1); \
+
+	
+	if ! grep -Pq "^$(2)=.+$$" $(1) || ([ -z "$2"] && [ ! -s $(1)]); then \
+		grep -iq "^$(2)$$" $(1) && sed -i '/^$(2)$$/d' $(1) && echo "Exists and deleted 1"; \
+		grep -iq "^$(shell echo $(2) | sed 's/.$$//')$$" $(1) && sed -i "/^$(shell echo $(2) | sed 's/.$$//')$$/d" $(1) && echo "2 Exists and deleted"; \
+		while ! grep -Pq "^$(2).+$$" $(1); do \
+			if echo $(1) | grep -q ".txt" && [ -z "$(strip $(2))" ]; then \
+				echo "Please enter a value for missing $(basename $(1) .txt)"; \
+			else \
+				echo "Please enter a value for missing env $2"; \
+			fi ; \
+			read user_input; \
+			$(call is_input_valid,$(1),$$user_input,$(2),$(3),$(4));\
+		done; \
+	fi
+endef
+
+test:
+# grep -q "^ADMINTEST=" ./srcs/.env && sed -i '/^ADMINTEST=$$/d' $(1)
+	@$(call set_missing_value2,./srcs/.env,ADMINTEST=,,admin)
+
 build:
+#docker swarm init ?
 	@$(call make_missing_dir,$(VOLUME_DATABASE))
 	@$(call make_missing_dir,$(VOLUME_WEBSITE))
 	@$(call make_missing_dir,./secrets)
 	@$(call set_missing_value,./srcs/.env,DOMAIN_NAME=)
 	@$(call set_missing_value,./secrets/db_root_pasword.txt)
-	@$(call set_missing_value,./srcs/.env,DB_NAME=)
-	@$(call set_missing_value,./srcs/.env,DB_ADMIN=,,admin)
-	@$(call set_missing_value,./secrets/db_password.txt,DB_ADMIN_PW=)
-	@$(call set_missing_value,./srcs/.env,WP_ADMIN=)
-	@$(call set_missing_value,./secrets/credential.txt,WP_ADMIN_PW=)
-	@$(call set_missing_value,./srcs/.env,WP_ADMIN_EMAIL=)
-	@$(call set_missing_value,./srcs/.env,WP_USER2_ROLE=,subscriber|editor|admin|author)
-	@$(call set_missing_value,./srcs/.env,WP_USER2=)
-	@$(call set_missing_value,./srcs/.env,WP_USER2_EMAIL=)
-	@$(call set_missing_value,./secrets/credential.txt,WP_USER_PW=)
+	@$(call set_missing_value,./srcs/.env,DATABASE_NAME=)
+	@$(call set_missing_value,./srcs/.env,DATABASE_ADMIN=,,admin)
+	@$(call set_missing_value,./secrets/db_password.txt,DATABASE_ADMIN_PASSWORD=)
+	@$(call set_missing_value,./srcs/.env,WORDPRESS_ADMIN_USERNAME=)
+	@$(call set_missing_value,./secrets/credentials.txt,WORDPRESS_ADMIN_PASSWORD=)
+	@$(call set_missing_value,./srcs/.env,WORDPRESS_ADMIN_EMAIL=)
+	@$(call set_missing_value,./srcs/.env,WORDPRESS_USER2_ROLE=,subscriber|editor|admin|author)
+	@$(call set_missing_value,./srcs/.env,WORDPRESS_USER2_USERNAME=)
+	@$(call set_missing_value,./srcs/.env,WORDPRESS_USER2_EMAIL=)
+	@$(call set_missing_value,./secrets/credentials.txt,WORDPRESS_USER2_PASSWORD=)
 	@if ! grep -q "^DOCKER_BUILDKIT=" ./srcs/.env; then echo "DOCKER_BUILDKIT=1" >> ./srcs/.env; fi
 	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) build
 
@@ -90,6 +117,6 @@ re: down
 	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) up -d
 
 reset: clean
-	sudo rm -rf /home/artclave/data/website
-	sudo rm -rf /home/artclave/data/database
+	sudo rm -rf $(VOLUME_DATABASE)
+	sudo rm -rf $(VOLUME_WEBSITE)
 

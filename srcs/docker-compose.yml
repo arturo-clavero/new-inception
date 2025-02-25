@@ -33,17 +33,16 @@ services:
             - page:/var/www/$DOMAIN_NAME
         environment:
             - DOMAIN_NAME=$DOMAIN_NAME
+            - WP_USER_ROLE=$WORDPRESS_USER2_ROLE
         secrets:
             - db_name
             - db_admin
             - db_admin_pw
             - wp_admin
             - wp_admin_email 
-            - wp_admin_pw
+            - wp_pws
             - wp_user
-            - wp_user_role
             - wp_user_email
-            - wp_user_pw
 
         depends_on:
             - mariadb
@@ -66,27 +65,23 @@ services:
         restart: on-failure
 secrets:
     db_root_pw:
-        environment: DB_ROOT_PW
+        file: ../secrets/db_root_password.txt
     db_name:
-        environment: DB_NAME
+        environment: DATABASE_NAME
     db_admin:
-        environment: DB_ADMIN
+        file: ../secrets/db_password.txt
     db_admin_pw:
         environment: DB_ADMIN_PW
     wp_admin:
-        environment: WP_ADMIN
-    wp_admin_pw:
-        environment: WP_ADMIN_PW
+        environment: WORDPRESS_ADMIN_USERNAME
     wp_admin_email:
-        environment: WP_ADMIN_EMAIL
+        environment: WORDPRESS_ADMIN_EMAIL
     wp_user:
-        environment: WP_USER2
-    wp_user_role:
-        environment: WP_USER2_ROLE
+        environment: WORDPRESS_USER2_USERNAME
     wp_user_email:
-        environment: WP_USER2_EMAIL
-    wp_user_pw:
-        environment: WP_USER2_PW
+        environment: WORDPRESS_USER2_EMAIL
+    wp_pws:
+        file: ../secrets/credentials.txt
 
 volumes:
     page:
