@@ -3,3 +3,4 @@
 **/restart.sh
 ./secrets/*
 ./secrets
+secrets
