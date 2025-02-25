@@ -32,9 +32,12 @@ define set_missing_value
 			echo "Missing file - created $(1)"; \
 	fi; \
 	sudo chmod 777 $(1); \
-	if ! grep -Pq "^$(2)=.+$$" $(1) || ([ -z "$2"] && [ ! -s $(1)]); then \
+	echo "test 1"; \
+	if ! grep -Pq "^$(2).+$$" $(1) || ([ -z "$2"] && [ ! -s $(1)]); then \
+		echo "test 2"; \
 		grep -iq "^$(2)$$" $(1) && sed -i '/^$(2)$$/d' $(1) && echo "Exists and deleted 1"; \
 		grep -iq "^$(shell echo $(2) | sed 's/.$$//')$$" $(1) && sed -i "/^$(shell echo $(2) | sed 's/.$$//')$$/d" $(1) && echo "2 Exists and deleted"; \
+		echo "test 3"; \
 		while ! grep -Pq "^$(2).+$$" $(1); do \
 			if echo $(1) | grep -q ".txt" && [ -z "$(strip $(2))" ]; then \
 				echo "Please enter a value for missing $(basename $(1) .txt)"; \
@@ -54,17 +57,17 @@ build:
 	@$(call make_missing_dir,$(VOLUME_WEBSITE))
 	@$(call make_missing_dir,./secrets)
 	@$(call set_missing_value,./srcs/.env,DOMAIN_NAME=)
-	@$(call set_missing_value,./secrets/db_root_password.txt)
 	@$(call set_missing_value,./secrets/credentials.txt,DATABASE_NAME=)
-	@$(call set_missing_value,./secrets/credentials.txt,DATABASE_ADMIN=,,admin)
-	@$(call set_missing_value,./secrets/db_password.txt,,,$(shell grep "^DATABASE_ADMIN=" ./secrets/credentials.txt | awk -F= '{print $$2}'))
-	@$(call set_missing_value,./secrets/credentials.txt,WORDPRESS_ADMIN_USERNAME=)
-	@$(call set_missing_value,./secrets/credentials.txt,WORDPRESS_ADMIN_PASSWORD,,$(shell grep "^WORDPRESS_ADMIN_USERNAME=" ./secrets/credentials.txt | awk -F= '{print $$2}'))
+	@$(call set_missing_value,./secrets/db_root_password.txt)
+	@$(call set_missing_value,./secrets/credentials.txt,DATABASE_ADMIN=)
+	@$(call set_missing_value,./secrets/db_password.txt)
+	@$(call set_missing_value,./secrets/credentials.txt,WORDPRESS_ADMIN_USERNAME=,,admin)
+	@$(call set_missing_value,./secrets/credentials.txt,WORDPRESS_ADMIN_PASSWORD=)
 	@$(call set_missing_value,./secrets/credentials.txt,WORDPRESS_ADMIN_EMAIL=)
-	@$(call set_missing_value,./srcs/.env,WORDPRESS_USER2_ROLE=,subscriber|editor|author|contributor)
 	@$(call set_missing_value,./secrets/credentials.txt,WORDPRESS_USER2_USERNAME=)
+	@$(call set_missing_value,./secrets/credentials.txt,WORDPRESS_USER2_PASSWORD=)
 	@$(call set_missing_value,./secrets/credentials.txt,WORDPRESS_USER2_EMAIL=)
-	@$(call set_missing_value,./secrets/credentials.txt,WORDPRESS_USER2_PASSWORD=,,$(shell grep "^WORDPRESS_USER2_USERNAME=" ./secrets/credentials.txt | awk -F= '{print $$2}'))
+	@$(call set_missing_value,./srcs/.env,WORDPRESS_USER2_ROLE=,subscriber|editor|author|contributor)
 	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) build
 
 up:
