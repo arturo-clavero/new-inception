@@ -14,9 +14,9 @@ endef
 define is_input_valid
 	if [ -z "$(strip $(2))" ]; then \
 		echo "Invalid input: cannot be empty"; \
-	elif [ ! -z "$(strip $(5))" ] && echo $(2) | grep -iqE "$(5)" ; then \
+	elif [ ! -z "$(5)" ] && echo $(2) | grep -iq "$(5)" ; then \
 		echo "Invalid input: must not contain $(5)"; \
-	elif [ ! -z "$(strip $(4))" ] && ! echo $(2) | grep -qE "^($(4))$$" ; then \
+	elif [ ! -z "$(4)" ] && ! echo $(2) | grep -qE "^($(4))$$" ; then \
 		echo "Invalid input: must be $(4)"; \
 	elif echo $(3) | grep -iqE "EMAIL" && ! echo $(2) | grep -qE "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$$"; then \
     	echo "Invalid email format"; \
@@ -33,10 +33,10 @@ define set_missing_value
 	fi; \
 	sudo chmod 777 $(1); \
 	if ! grep -Pq "^$(2).+$$" $(1) || ([ -z "$2" ] && [ ! -s $(1) ]); then \
-		grep -iq "^$(2)$$" $(1) && sed -i '/^$(2)$$/d' $(1) && echo "Exists and deleted 1"; \
-		grep -iq "^$(shell echo $(2) | sed 's/.$$//')$$" $(1) && sed -i "/^$(shell echo $(2) | sed 's/.$$//')$$/d" $(1) && echo "2 Exists and deleted"; \
-		while ! grep -Pq "^$(2).+$$" $(1); do \
-			if echo $(1) | grep -q ".txt" && [ -z "$(strip $(2))" ]; then \
+		grep -iq "^$(2)$$" $(1) && sed -i '/^$(2)$$/d' $(1) && echo "Exists and deleted"; \
+		grep -iq "^$(shell echo $(2) | sed 's/.$$//')$$" $(1) && sed -i "/^$(shell echo $(2) | sed 's/.$$//')$$/d" $(1) && echo "Exists and deleted"; \
+		while ! grep -Pq "^$(2).+$$" $(1) || ([ -z "$2" ] && [ ! -s $(1) ]); do \
+			if echo $(1) | grep -q ".txt" && [ -z "$(2)" ]; then \
 				echo "Please enter a value for missing $(basename $(1) .txt)"; \
 			else \
 				echo "Please enter a value for missing env $2"; \
@@ -44,7 +44,8 @@ define set_missing_value
 			read user_input; \
 			$(call is_input_valid,$(1),$$user_input,$(2),$(3),$(4));\
 		done; \
-	fi
+	fi; \
+	sudo chmod 644 $(1); 
 endef
 
 all: build up
@@ -79,7 +80,7 @@ logs:
 clean: down
 	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) rm -f
 	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) down --volumes --remove-orphans -v
-	docker volume rm page -f
+	docker volume rm database website -f
 	docker system prune -f
 	docker system prune -a --volumes -f
 
