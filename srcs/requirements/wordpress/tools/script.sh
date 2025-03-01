@@ -26,6 +26,7 @@ if [ ! -f /var/www/${DOMAIN_NAME}/wp-config.php ]; then
 						./wp-cli.phar core install --url="https://artclave." --title=inception --admin_user=$wp_admin --admin_password=$wp_admin_pw --admin_email=$wp_admin_email && \
 						./wp-cli.phar user create $wp_user $wp_user_email --role=$WP_USER_ROLE --user_pass=$wp_user_pw"
 fi
+
 chown -R www-data:www-data /var/www/${DOMAIN_NAME}
 
 exec php-fpm8.2 -F

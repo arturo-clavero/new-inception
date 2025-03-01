@@ -15,7 +15,8 @@ services:
         ports:
             - "443:443"
         depends_on:
-            - wordpress
+            wordpress:
+                condition: service_healthy
         environment:
             - DOMAIN_NAME=$DOMAIN_NAME
         volumes:
@@ -41,8 +42,15 @@ services:
             - db_admin_pw
             - credentials
         depends_on:
-            - mariadb
+            mariadb:
+                condition: service_healthy
         restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "pgrep", "-x", "php-fpm8.2"]
+            interval: 5s
+            retries: 30
+            start_period: 20s
+            timeout: 10s
     mariadb:
         container_name: mariadb
         build:
@@ -58,6 +66,13 @@ services:
         volumes:
             - database:/var/lib/mysql
         restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "./healthcheck.sh"]
+            interval: 10s
+            retries: 5
+            start_period: 10s
+            timeout: 5s
+
 secrets:
     domain:
         environment: DOMAIN_NAME
